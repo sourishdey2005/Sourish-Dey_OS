@@ -22,12 +22,18 @@ import {
   MapPin,
   Calendar,
   Monitor,
-  Maximize2
+  Maximize2,
+  Settings,
+  Image as ImageIcon,
+  Power,
+  RefreshCw,
+  LogOut,
+  Info
 } from 'lucide-react';
 
 // --- Types ---
 
-type AppId = 'home' | 'about' | 'experience' | 'projects' | 'skills' | 'education' | 'certifications' | 'publications' | 'honors' | 'contact';
+type AppId = 'home' | 'about' | 'experience' | 'projects' | 'skills' | 'education' | 'certifications' | 'publications' | 'honors' | 'contact' | 'settings';
 
 interface AppConfig {
   id: AppId;
@@ -64,6 +70,15 @@ const APPS: AppConfig[] = [
   { id: 'publications', title: 'Research', icon: <BookOpen size={24} />, color: 'bg-pink-500' },
   { id: 'honors', title: 'Honors', icon: <Star size={24} />, color: 'bg-yellow-400' },
   { id: 'contact', title: 'Contact', icon: <Mail size={24} />, color: 'bg-green-600' },
+  { id: 'settings', title: 'Settings', icon: <Settings size={24} />, color: 'bg-slate-600' },
+];
+
+const WALLPAPERS = [
+  { name: "Nebula", url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" },
+  { name: "Midnight Peaks", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000&auto=format&fit=crop" },
+  { name: "Abstract Flow", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop" },
+  { name: "Cyberpunk City", url: "https://images.unsplash.com/photo-1515630278258-407f66498911?q=80&w=2000&auto=format&fit=crop" },
+  { name: "Minimalist", url: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?q=80&w=2000&auto=format&fit=crop" },
 ];
 
 const EXPERIENCE_DATA = [
@@ -469,7 +484,7 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
       className={`absolute flex flex-col overflow-hidden transition-shadow duration-200 
         ${state.isMaximized ? '' : 'rounded-lg'}
         ${isActive ? 'shadow-[0_20px_60px_-10px_rgba(0,0,0,0.7)] ring-1 ring-white/20' : 'shadow-2xl ring-1 ring-white/10 grayscale-[0.3]'}
-        bg-[#1e1e2e]/90 backdrop-blur-xl
+        bg-[#1e1e2e]/95 backdrop-blur-xl
       `}
       style={style}
       onMouseDown={() => onFocus(app.id)}
@@ -500,7 +515,7 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
       </div>
       
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-0 text-slate-200 custom-scrollbar relative bg-[#181825]/80">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-0 text-slate-200 custom-scrollbar relative bg-[#181825]/90">
         <div className="p-6 h-full">
           {children}
         </div>
@@ -867,6 +882,115 @@ const ContactView = () => (
   </div>
 );
 
+interface SettingsViewProps {
+  currentWallpaper: string;
+  onSetWallpaper: (url: string) => void;
+}
+
+const SettingsView: React.FC<SettingsViewProps> = ({ currentWallpaper, onSetWallpaper }) => {
+  return (
+    <div className="max-w-4xl mx-auto animate-in slide-in-from-bottom-4 duration-500 space-y-8">
+      <div>
+        <h2 className="text-3xl font-bold text-white mb-2">System Settings</h2>
+        <p className="text-gray-400">Personalize your experience</p>
+      </div>
+
+      <div className="bg-white/5 rounded-xl border border-white/10 p-6">
+        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <ImageIcon size={20} /> Wallpaper
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {WALLPAPERS.map((wp, idx) => (
+            <div 
+              key={idx}
+              onClick={() => onSetWallpaper(wp.url)}
+              className={`group relative aspect-video rounded-lg overflow-hidden cursor-pointer border-2 transition-all hover:scale-105
+                ${currentWallpaper === wp.url ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-transparent hover:border-white/30'}
+              `}
+            >
+              <img src={wp.url} alt={wp.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white font-semibold">{wp.name}</span>
+              </div>
+              {currentWallpaper === wp.url && (
+                <div className="absolute top-2 right-2 bg-blue-500 text-white p-1 rounded-full">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white/5 rounded-xl border border-white/10 p-6">
+         <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Info size={20} /> System Info
+        </h3>
+        <div className="space-y-4 text-sm">
+          <div className="flex justify-between border-b border-white/5 pb-2">
+            <span className="text-gray-400">OS Version</span>
+            <span className="text-white">SourishOS v1.2.0 (Stable)</span>
+          </div>
+           <div className="flex justify-between border-b border-white/5 pb-2">
+            <span className="text-gray-400">Kernel</span>
+            <span className="text-white">React 18.2.0</span>
+          </div>
+           <div className="flex justify-between border-b border-white/5 pb-2">
+            <span className="text-gray-400">Resolution</span>
+            <span className="text-white">{window.innerWidth} x {window.innerHeight}</span>
+          </div>
+           <div className="flex justify-between">
+            <span className="text-gray-400">Memory</span>
+            <span className="text-white">Virtual Heap 4GB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Context Menu Component ---
+
+interface ContextMenuProps {
+  x: number;
+  y: number;
+  onClose: () => void;
+  onRefresh: () => void;
+  onChangeWallpaper: () => void;
+  onOpenSettings: () => void;
+}
+
+const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onRefresh, onChangeWallpaper, onOpenSettings }) => {
+  useEffect(() => {
+    const handleClick = () => onClose();
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, [onClose]);
+
+  return (
+    <div 
+      className="fixed z-[9999] w-56 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-lg shadow-2xl py-1 text-sm text-gray-200 animate-in fade-in zoom-in-95 duration-100"
+      style={{ top: y, left: x }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button onClick={() => { onRefresh(); onClose(); }} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition-colors">
+        <RefreshCw size={14} /> Refresh
+      </button>
+      <div className="h-px bg-white/10 my-1 mx-2"></div>
+      <button onClick={() => { onChangeWallpaper(); onClose(); }} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition-colors">
+        <ImageIcon size={14} /> Next Wallpaper
+      </button>
+      <button onClick={() => { onOpenSettings(); onClose(); }} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition-colors">
+        <Settings size={14} /> Personalize...
+      </button>
+      <div className="h-px bg-white/10 my-1 mx-2"></div>
+      <button className="w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white flex items-center gap-2 transition-colors text-gray-400">
+        <LogOut size={14} /> Log Out
+      </button>
+    </div>
+  );
+};
+
 // --- Main App Component ---
 
 const App: React.FC = () => {
@@ -874,6 +998,12 @@ const App: React.FC = () => {
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [zIndexCounter, setZIndexCounter] = useState(10);
   const [activeWindowId, setActiveWindowId] = useState<AppId | null>(null);
+  
+  // Unique Features State
+  const [wallpaper, setWallpaper] = useState(WALLPAPERS[0].url);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; show: boolean }>({ x: 0, y: 0, show: false });
+  const [showSystemMenu, setShowSystemMenu] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     // Simulate boot sequence
@@ -962,6 +1092,22 @@ const App: React.FC = () => {
     setWindows(prev => prev.map(w => w.id === id ? { ...w, ...newState } : w));
   };
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, show: true });
+    setShowSystemMenu(false);
+  };
+
+  const handleNextWallpaper = () => {
+    const currentIndex = WALLPAPERS.findIndex(w => w.url === wallpaper);
+    const nextIndex = (currentIndex + 1) % WALLPAPERS.length;
+    setWallpaper(WALLPAPERS[nextIndex].url);
+  };
+
+  const handleRefresh = () => {
+    setRefreshKey(k => k + 1); // Triggers re-render of icons mostly
+  };
+
   const renderContent = (id: AppId) => {
     switch (id) {
       case 'home': return <HomeView />;
@@ -974,6 +1120,7 @@ const App: React.FC = () => {
       case 'publications': return <PublicationsView />;
       case 'honors': return <HonorsView />;
       case 'contact': return <ContactView />;
+      case 'settings': return <SettingsView currentWallpaper={wallpaper} onSetWallpaper={setWallpaper} />;
       default: return null;
     }
   };
@@ -995,16 +1142,49 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="h-screen w-screen bg-gray-900 bg-cover bg-center overflow-hidden flex flex-col relative select-none"
-         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')" }}>
+    <div 
+      className="h-screen w-screen bg-gray-900 bg-cover bg-center overflow-hidden flex flex-col relative select-none transition-all duration-700"
+      style={{ backgroundImage: `url('${wallpaper}')` }}
+      onContextMenu={handleContextMenu}
+      onClick={() => {
+        if (contextMenu.show) setContextMenu({ ...contextMenu, show: false });
+        if (showSystemMenu) setShowSystemMenu(false);
+      }}
+    >
       
       {/* Background Overlay */}
-      <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
 
       {/* Top Bar (Status Bar) */}
       <div className="h-8 bg-black/40 backdrop-blur-md flex items-center justify-between px-4 text-white z-50 border-b border-white/5 relative shadow-sm">
-        <div className="flex items-center space-x-4 text-xs font-semibold tracking-wide">
-           <span className="hover:text-blue-400 cursor-pointer flex items-center gap-1.5"><Terminal size={14} className="text-blue-400" /> Sourish OS</span>
+        <div className="flex items-center space-x-4 text-xs font-semibold tracking-wide relative">
+           <button 
+             onClick={(e) => { e.stopPropagation(); setShowSystemMenu(!showSystemMenu); }}
+             className={`hover:text-blue-400 cursor-pointer flex items-center gap-1.5 px-2 py-1 rounded transition-colors ${showSystemMenu ? 'bg-white/10' : ''}`}
+            >
+             <Terminal size={14} className="text-blue-400" /> Sourish OS
+           </button>
+           
+           {/* System Dropdown Menu */}
+           {showSystemMenu && (
+             <div className="absolute top-9 left-0 w-48 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-lg shadow-2xl py-1 z-[9999] animate-in slide-in-from-top-2 duration-200">
+               <button onClick={() => openApp('about')} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white text-gray-200 transition-colors">
+                 About This OS
+               </button>
+               <div className="h-px bg-white/10 my-1 mx-2"></div>
+               <button onClick={() => openApp('settings')} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white text-gray-200 transition-colors">
+                 System Preferences...
+               </button>
+               <div className="h-px bg-white/10 my-1 mx-2"></div>
+               <button onClick={() => window.location.reload()} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white text-gray-200 transition-colors">
+                 Restart...
+               </button>
+               <button onClick={() => setBooted(false)} className="w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white text-gray-200 transition-colors">
+                 Shut Down...
+               </button>
+             </div>
+           )}
+
            <span className="opacity-20">|</span>
            <span className="cursor-pointer hover:text-gray-300">File</span>
            <span className="cursor-pointer hover:text-gray-300">Edit</span>
@@ -1028,11 +1208,12 @@ const App: React.FC = () => {
       <div className="flex-1 relative p-4 overflow-hidden" id="desktop-area">
         
         {/* Desktop Icons Grid */}
-        <div className="grid grid-flow-col grid-rows-6 gap-6 justify-start content-start h-full p-2 w-fit">
+        <div key={refreshKey} className="grid grid-flow-col grid-rows-6 gap-6 justify-start content-start h-full p-2 w-fit animate-in fade-in duration-300">
           {APPS.map(app => (
             <button 
               key={app.id}
               onClick={() => openApp(app.id)}
+              onContextMenu={(e) => e.stopPropagation()} 
               className="group flex flex-col items-center gap-2 w-24 p-2 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:bg-white/20 active:bg-blue-500/30"
             >
               <div className={`${app.color} p-3 rounded-xl text-white shadow-lg group-hover:scale-110 transition-transform duration-200`}>
@@ -1067,6 +1248,18 @@ const App: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Context Menu */}
+      {contextMenu.show && (
+        <ContextMenu 
+          x={contextMenu.x} 
+          y={contextMenu.y} 
+          onClose={() => setContextMenu({ ...contextMenu, show: false })}
+          onRefresh={handleRefresh}
+          onChangeWallpaper={handleNextWallpaper}
+          onOpenSettings={() => openApp('settings')}
+        />
+      )}
 
       {/* Dock (Nav Panel) */}
       <div className="absolute bottom-4 left-0 right-0 flex justify-center z-[100] pointer-events-none">
