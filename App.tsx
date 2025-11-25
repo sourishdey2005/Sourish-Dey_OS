@@ -342,7 +342,7 @@ const Clock: React.FC = () => {
   }, []);
 
   return (
-    <div className="text-sm font-medium tabular-nums text-shadow">
+    <div className="text-sm font-medium tabular-nums text-shadow select-none">
       {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
     </div>
   );
@@ -369,6 +369,7 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
   // Handle Dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     if (state.isMaximized) return;
+    if (e.button !== 0) return; // Only left click
     e.stopPropagation();
     onFocus(app.id);
     dragStartRef.current = {
@@ -380,6 +381,7 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
 
   // Handle Resize Start
   const handleResizeStart = (e: React.MouseEvent, dir: string) => {
+    if (e.button !== 0) return; // Only left click
     e.stopPropagation();
     e.preventDefault();
     onFocus(app.id);
@@ -480,7 +482,7 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
         onMouseDown={handleMouseDown}
         onDoubleClick={() => onMaximize(app.id)}
       >
-        <div className="flex items-center space-x-2 text-white font-semibold text-sm drop-shadow-sm">
+        <div className="flex items-center space-x-2 text-white font-semibold text-sm drop-shadow-sm pointer-events-none">
           {app.icon}
           <span>{app.title}</span>
         </div>
@@ -983,8 +985,9 @@ const App: React.FC = () => {
            <Monitor size={64} className="text-blue-500 animate-pulse" />
            <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
         </div>
+        {/* Simplified Animation for robustness */}
         <div className="w-64 h-2 bg-gray-800 rounded-full overflow-hidden mb-4 border border-gray-700">
-           <div className="h-full bg-blue-500 animate-[width_2s_ease-out_forwards]" style={{width: '0%'}}></div>
+           <div className="h-full bg-blue-500 transition-all duration-[2000ms] ease-out w-full" style={{ width: booted ? '100%' : '0%' }}></div>
         </div>
         <div className="text-sm font-mono text-blue-400">Initializing Sourish OS...</div>
       </div>
@@ -1043,21 +1046,26 @@ const App: React.FC = () => {
         </div>
 
         {/* Windows */}
-        {windows.map(win => (
-          <Window 
-            key={win.id}
-            app={APPS.find(a => a.id === win.id)!}
-            state={win}
-            isActive={activeWindowId === win.id}
-            onClose={closeWindow}
-            onMinimize={minimizeWindow}
-            onMaximize={toggleMaximize}
-            onFocus={focusWindow}
-            onUpdateState={updateWindowState}
-          >
-            {renderContent(win.id)}
-          </Window>
-        ))}
+        {windows.map(win => {
+          const appConfig = APPS.find(a => a.id === win.id);
+          if (!appConfig) return null; // Safety check
+          
+          return (
+            <Window 
+              key={win.id}
+              app={appConfig}
+              state={win}
+              isActive={activeWindowId === win.id}
+              onClose={closeWindow}
+              onMinimize={minimizeWindow}
+              onMaximize={toggleMaximize}
+              onFocus={focusWindow}
+              onUpdateState={updateWindowState}
+            >
+              {renderContent(win.id)}
+            </Window>
+          );
+        })}
       </div>
 
       {/* Dock (Nav Panel) */}
