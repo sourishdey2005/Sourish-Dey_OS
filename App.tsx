@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Terminal, 
@@ -13,7 +12,6 @@ import {
   Mail, 
   X, 
   Minus, 
-  Square,
   Wifi,
   Battery,
   Search,
@@ -68,7 +66,6 @@ const APPS: AppConfig[] = [
   { id: 'contact', title: 'Contact', icon: <Mail size={24} />, color: 'bg-green-600' },
 ];
 
-// ... (Data Constants remain same, condensed for brevity where possible, but full content included) ...
 const EXPERIENCE_DATA = [
   {
     role: "Data Science Intern",
@@ -525,7 +522,8 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
   );
 };
 
-// --- View Components (Same as before) ---
+// --- View Components ---
+
 const HomeView = () => (
   <div className="h-full flex flex-col justify-center items-center text-center space-y-6 animate-in fade-in duration-700">
     <div className="relative group cursor-pointer">
@@ -980,7 +978,7 @@ const App: React.FC = () => {
 
   if (!booted) {
     return (
-      <div className="h-screen w-screen bg-black flex flex-col items-center justify-center text-white cursor-wait">
+      <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-white cursor-wait">
         <div className="mb-8 relative">
            <Monitor size={64} className="text-blue-500 animate-pulse" />
            <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
@@ -994,7 +992,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="h-screen w-screen bg-cover bg-center overflow-hidden flex flex-col relative select-none"
+    <div className="h-screen w-screen bg-gray-900 bg-cover bg-center overflow-hidden flex flex-col relative select-none"
          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')" }}>
       
       {/* Background Overlay */}

@@ -7,9 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
       body {
         font-family: 'Inter', sans-serif;
-        overflow: hidden; /* Prevent body scroll, handle inside OS container */
+        background-color: #111827; /* bg-gray-900 */
       }
       /* Custom Scrollbar for OS Feel */
       ::-webkit-scrollbar {
