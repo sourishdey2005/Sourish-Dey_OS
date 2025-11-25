@@ -1181,7 +1181,7 @@ const App: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    // Simulate boot sequence
+    // Simulate boot sequence - 5 seconds
     const timer = setTimeout(() => {
       setBooted(true);
       
@@ -1203,7 +1203,7 @@ const App: React.FC = () => {
       }]);
       setActiveWindowId('home');
       
-    }, 2500);
+    }, 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -1348,7 +1348,7 @@ const App: React.FC = () => {
            <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
         </div>
         <div className="w-64 h-2 bg-gray-800 rounded-full overflow-hidden mb-4 border border-gray-700">
-           <div className="h-full bg-blue-500 transition-all duration-[2000ms] ease-out w-full" style={{ width: booted ? '100%' : '0%' }}></div>
+           <div className="h-full bg-blue-500 transition-all duration-[5000ms] ease-out w-full" style={{ width: booted ? '100%' : '0%' }}></div>
         </div>
         <div className="text-sm font-mono text-blue-400">Initializing Sourish OS...</div>
       </div>
