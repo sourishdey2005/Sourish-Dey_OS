@@ -78,7 +78,7 @@ interface Notification {
 // --- Data Constants ---
 
 const APPS: AppConfig[] = [
-  { id: 'home', title: 'Profile', icon: <User size={24} />, color: 'bg-blue-500' },
+  { id: 'home', title: 'Profile', icon: <User size={24} />, color: 'bg-blue-500', defaultSize: { w: 900, h: 650 } },
   { id: 'about', title: 'About', icon: <Info size={24} />, color: 'bg-emerald-500' },
   { id: 'experience', title: 'Experience', icon: <Briefcase size={24} />, color: 'bg-amber-500' },
   { id: 'projects', title: 'Projects', icon: <Code size={24} />, color: 'bg-purple-500' },
@@ -1168,7 +1168,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onRefresh, onC
 
 const App: React.FC = () => {
   const [booted, setBooted] = useState(false);
-  const [locked, setLocked] = useState(true);
+  const [locked, setLocked] = useState(false);
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [zIndexCounter, setZIndexCounter] = useState(10);
   const [activeWindowId, setActiveWindowId] = useState<AppId | null>(null);
@@ -1184,7 +1184,25 @@ const App: React.FC = () => {
     // Simulate boot sequence
     const timer = setTimeout(() => {
       setBooted(true);
-      // Wait for unlock to show welcome notification
+      
+      // Auto-launch Home App to ensure main page is visible
+      const homeConfig = APPS.find(a => a.id === 'home');
+      const w = homeConfig?.defaultSize?.w || 900;
+      const h = homeConfig?.defaultSize?.h || 650;
+      
+      // Only open if not already open (though this runs once on mount)
+      setWindows([{
+        id: 'home',
+        x: (window.innerWidth - w) / 2,
+        y: (window.innerHeight - h) / 2,
+        width: w,
+        height: h,
+        zIndex: 11,
+        isMinimized: false,
+        isMaximized: false
+      }]);
+      setActiveWindowId('home');
+      
     }, 2500);
     return () => clearTimeout(timer);
   }, []);
