@@ -28,18 +28,29 @@ import {
   Power,
   RefreshCw,
   LogOut,
-  Info
+  Info,
+  Music,
+  Calculator,
+  Lock,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  Bell,
+  ChevronRight
 } from 'lucide-react';
 
 // --- Types ---
 
-type AppId = 'home' | 'about' | 'experience' | 'projects' | 'skills' | 'education' | 'certifications' | 'publications' | 'honors' | 'contact' | 'settings';
+type AppId = 'home' | 'about' | 'experience' | 'projects' | 'skills' | 'education' | 'certifications' | 'publications' | 'honors' | 'contact' | 'settings' | 'terminal' | 'music' | 'calculator';
 
 interface AppConfig {
   id: AppId;
   title: string;
   icon: React.ReactNode;
   color: string;
+  defaultSize?: { w: number, h: number };
 }
 
 interface WindowRect {
@@ -57,11 +68,18 @@ interface WindowState extends WindowRect {
   prevRect?: WindowRect; // To restore size after maximize
 }
 
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  timestamp: Date;
+}
+
 // --- Data Constants ---
 
 const APPS: AppConfig[] = [
-  { id: 'home', title: 'Profile', icon: <Terminal size={24} />, color: 'bg-blue-500' },
-  { id: 'about', title: 'About Me', icon: <User size={24} />, color: 'bg-emerald-500' },
+  { id: 'home', title: 'Profile', icon: <User size={24} />, color: 'bg-blue-500' },
+  { id: 'about', title: 'About', icon: <Info size={24} />, color: 'bg-emerald-500' },
   { id: 'experience', title: 'Experience', icon: <Briefcase size={24} />, color: 'bg-amber-500' },
   { id: 'projects', title: 'Projects', icon: <Code size={24} />, color: 'bg-purple-500' },
   { id: 'skills', title: 'Skills', icon: <Cpu size={24} />, color: 'bg-rose-500' },
@@ -70,6 +88,9 @@ const APPS: AppConfig[] = [
   { id: 'publications', title: 'Research', icon: <BookOpen size={24} />, color: 'bg-pink-500' },
   { id: 'honors', title: 'Honors', icon: <Star size={24} />, color: 'bg-yellow-400' },
   { id: 'contact', title: 'Contact', icon: <Mail size={24} />, color: 'bg-green-600' },
+  { id: 'terminal', title: 'Terminal', icon: <Terminal size={24} />, color: 'bg-gray-800', defaultSize: { w: 700, h: 500 } },
+  { id: 'music', title: 'Music', icon: <Music size={24} />, color: 'bg-red-500', defaultSize: { w: 350, h: 500 } },
+  { id: 'calculator', title: 'Calculator', icon: <Calculator size={24} />, color: 'bg-orange-500', defaultSize: { w: 300, h: 450 } },
   { id: 'settings', title: 'Settings', icon: <Settings size={24} />, color: 'bg-slate-600' },
 ];
 
@@ -81,6 +102,7 @@ const WALLPAPERS = [
   { name: "Minimalist", url: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?q=80&w=2000&auto=format&fit=crop" },
 ];
 
+// ... (Existing Data: EXPERIENCE_DATA, PROJECTS_DATA, SKILLS_DATA, CERTIFICATIONS_DATA - Kept same)
 const EXPERIENCE_DATA = [
   {
     role: "Data Science Intern",
@@ -419,8 +441,8 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
       if (resizeDir) {
         // Resizing Logic
         let newRect = { ...rect };
-        const minW = 350;
-        const minH = 250;
+        const minW = 300;
+        const minH = 200;
 
         if (resizeDir.includes('e')) newRect.width = Math.max(minW, rect.width + deltaX);
         if (resizeDir.includes('s')) newRect.height = Math.max(minH, rect.height + deltaY);
@@ -516,7 +538,7 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
       
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-0 text-slate-200 custom-scrollbar relative bg-[#181825]/90">
-        <div className="p-6 h-full">
+        <div className="h-full">
           {children}
         </div>
       </div>
@@ -542,7 +564,7 @@ const Window: React.FC<WindowProps> = ({ app, state, isActive, onClose, onMinimi
 // --- View Components ---
 
 const HomeView = () => (
-  <div className="h-full flex flex-col justify-center items-center text-center space-y-6 animate-in fade-in duration-700">
+  <div className="h-full p-6 flex flex-col justify-center items-center text-center space-y-6 animate-in fade-in duration-700">
     <div className="relative group cursor-pointer">
       <div className="w-32 h-32 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg border-4 border-white/10 group-hover:scale-105 transition-transform">
         SD
@@ -554,7 +576,7 @@ const HomeView = () => (
       <p className="text-xl md:text-2xl text-blue-400 font-semibold">A Data Scientist | Cloud Engineer</p>
     </div>
     <p className="max-w-2xl text-lg text-gray-300 leading-relaxed">
-      Highly motivated Cloud and Data Science Engineer with 3+ years of experience in building intelligent, scalable, and secure digital ecosystems. Proficient in AWS, MLOps, IaC, and Kubernetes, with a proven success in transforming data into predictive analytics.
+      Highly motivated Cloud and Data Science Engineer with 3+ years of experience in building intelligent, scalable, and secure digital ecosystems. Proficient in AWS, MLOps, IaC, and Kubernetes.
     </p>
     <div className="flex flex-wrap gap-4 justify-center pt-6">
       <button className="flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-full font-bold hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
@@ -565,7 +587,7 @@ const HomeView = () => (
 );
 
 const AboutView = () => (
-  <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-4xl p-6 mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
     <section>
       <h2 className="text-2xl font-bold text-white mb-4 border-b border-white/10 pb-2">Professional Profile</h2>
       <p className="text-lg leading-relaxed text-gray-300">
@@ -592,7 +614,7 @@ const AboutView = () => (
 );
 
 const ExperienceView = () => (
-  <div className="max-w-5xl mx-auto animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-5xl p-6 mx-auto animate-in slide-in-from-bottom-4 duration-500">
     <h2 className="text-2xl font-bold text-white mb-8 border-b border-white/10 pb-2">My Professional Journey</h2>
     <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-500 before:to-transparent">
       {EXPERIENCE_DATA.map((exp, index) => (
@@ -623,7 +645,7 @@ const ExperienceView = () => (
 );
 
 const ProjectsView = () => (
-  <div className="max-w-6xl mx-auto animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-6xl p-6 mx-auto animate-in slide-in-from-bottom-4 duration-500">
     <div className="mb-8">
       <h2 className="text-3xl font-bold text-white">Featured Projects</h2>
       <p className="text-gray-400">Innovations and implementations</p>
@@ -662,7 +684,7 @@ const ProjectsView = () => (
 );
 
 const SkillsView = () => (
-  <div className="max-w-4xl mx-auto animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-4xl p-6 mx-auto animate-in slide-in-from-bottom-4 duration-500">
     <h2 className="text-2xl font-bold text-white mb-8 border-b border-white/10 pb-2">Technical Skills</h2>
     <div className="grid grid-cols-1 gap-8">
       {Object.entries(SKILLS_DATA).map(([category, skills]) => (
@@ -684,7 +706,7 @@ const SkillsView = () => (
 );
 
 const EducationView = () => (
-  <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-4xl p-6 mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
     <h2 className="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-2">My Academic Journey</h2>
     
     <div className="relative border-l-2 border-cyan-500/30 ml-3 space-y-8 pl-8 py-2">
@@ -715,26 +737,12 @@ const EducationView = () => (
           </div>
         </div>
       </div>
-
-      <div className="relative group">
-        <span className="absolute -left-[41px] top-1 bg-gray-700 w-6 h-6 rounded-full border-4 border-gray-900 group-hover:scale-110 transition-transform"></span>
-        <div className="bg-white/5 p-6 rounded-xl border border-white/10 opacity-80 hover:opacity-100 hover:bg-white/10 transition-all">
-          <div className="flex flex-col md:flex-row justify-between mb-2">
-            <h3 className="text-xl font-bold text-white">Hem Sheela Model School</h3>
-            <span className="text-gray-400 font-mono text-sm">2020</span>
-          </div>
-          <p className="text-lg text-gray-300">Secondary (AISSE)</p>
-          <div className="mt-2 inline-block px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-bold">
-            Final Score: 98%
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 );
 
 const CertificationsView = () => (
-  <div className="max-w-5xl mx-auto animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-5xl p-6 mx-auto animate-in slide-in-from-bottom-4 duration-500">
     <h2 className="text-2xl font-bold text-white mb-8 border-b border-white/10 pb-2">Certifications & Training</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {CERTIFICATIONS_DATA.map((certGroup, idx) => (
@@ -755,7 +763,7 @@ const CertificationsView = () => (
 );
 
 const PublicationsView = () => (
-  <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-4xl p-6 mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
     <h2 className="text-2xl font-bold text-white mb-2">Publications & Patents</h2>
     <p className="text-gray-400 mb-6">My research and innovations</p>
     
@@ -772,12 +780,6 @@ const PublicationsView = () => (
           journal: "International Journal for Multidisciplinary Research (IJFMR)",
           date: "Dec 18, 2024",
           abstract: "An innovative IoT-integrated air purification system to combat air pollution in high-density urban and industrial areas. Utilizing a distributed architecture, the system employs real-time monitoring..."
-        },
-        {
-          title: "Quantum Computing for Nuclear Fusion: Advancing Simulation and Optimization",
-          journal: "International Journal for Multidisciplinary Research (IJFMR)",
-          date: "Dec 10, 2024",
-          abstract: "This paper explores the transformative potential of quantum computing in revolutionizing nuclear fusion. It focuses on leveraging quantum algorithms to enhance simulation accuracy and optimize energy production..."
         }
       ].map((pub, idx) => (
         <div key={idx} className="bg-white/5 p-6 rounded-xl border-l-4 border-pink-500 hover:bg-white/10 transition-colors">
@@ -791,32 +793,16 @@ const PublicationsView = () => (
         </div>
       ))}
     </div>
-
-    <h3 className="text-xl font-bold text-white mt-12 mb-4 border-b border-white/10 pb-2">Patents</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {[
-        { title: "AI-Powered Smart Agriculture Drone", id: "468494-001", desc: "Autonomous drone system leveraging AI for precision agriculture." },
-        { title: "Underwater Power Generator", id: "450888-001", desc: "Renewable underwater kinetic energy generator using magneto-inductive turbine systems." }
-      ].map((pat, idx) => (
-        <div key={idx} className="border border-white/20 bg-slate-900/50 p-4 rounded-lg hover:border-pink-500/50 transition-colors">
-          <div className="font-mono text-xs text-green-400 mb-1">ID: {pat.id}</div>
-          <h4 className="font-bold text-white mb-2">{pat.title}</h4>
-          <p className="text-xs text-gray-400">{pat.desc}</p>
-        </div>
-      ))}
-    </div>
   </div>
 );
 
 const HonorsView = () => (
-  <div className="max-w-4xl mx-auto animate-in slide-in-from-bottom-4 duration-500">
+  <div className="max-w-4xl p-6 mx-auto animate-in slide-in-from-bottom-4 duration-500">
     <h2 className="text-2xl font-bold text-white mb-8 border-b border-white/10 pb-2">Honors & Awards</h2>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {[
         { title: "School Topper", org: "Hem Sheela Model School", date: "Jan 2023" },
-        { title: "School Topper (98.5%)", org: "Hem Sheela Model School", date: "Jan 2020" },
-        { title: "Gold Medalist", org: "International Maths Olympiad (SOF)", date: "High School" },
-        { title: "Silver Medalist", org: "International Maths Olympiad (SOF)", date: "High School" }
+        { title: "Gold Medalist", org: "International Maths Olympiad (SOF)", date: "High School" }
       ].map((honor, idx) => (
         <div key={idx} className="flex items-center space-x-4 bg-gradient-to-r from-yellow-500/10 to-transparent p-4 rounded-xl border border-yellow-500/20 hover:border-yellow-500/50 transition-all">
           <div className="p-3 bg-yellow-500/20 rounded-full text-yellow-400">
@@ -834,7 +820,7 @@ const HonorsView = () => (
 );
 
 const ContactView = () => (
-  <div className="max-w-3xl mx-auto h-full flex flex-col justify-center animate-in zoom-in-95 duration-500">
+  <div className="max-w-3xl p-6 mx-auto h-full flex flex-col justify-center animate-in zoom-in-95 duration-500">
     <div className="text-center mb-10">
       <h2 className="text-3xl font-bold text-white mb-2">Get In Touch</h2>
       <p className="text-gray-400">Let's build something amazing</p>
@@ -855,99 +841,285 @@ const ContactView = () => (
         <p className="text-gray-300">+91-9064648823</p>
       </div>
     </div>
+  </div>
+);
 
-    <form className="bg-white/5 p-8 rounded-xl border border-white/10 space-y-4 shadow-lg" onSubmit={(e) => e.preventDefault()}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <label className="text-xs text-gray-400 uppercase font-bold tracking-wider">Name</label>
-          <input type="text" placeholder="Your Name" className="w-full bg-slate-900/50 border border-slate-700 rounded p-3 text-white focus:outline-none focus:border-green-500 transition-colors" />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs text-gray-400 uppercase font-bold tracking-wider">Email</label>
-          <input type="email" placeholder="Your Email" className="w-full bg-slate-900/50 border border-slate-700 rounded p-3 text-white focus:outline-none focus:border-green-500 transition-colors" />
-        </div>
+const SettingsView: React.FC<{ currentWallpaper: string; onSetWallpaper: (url: string) => void }> = ({ currentWallpaper, onSetWallpaper }) => (
+  <div className="max-w-4xl p-6 mx-auto animate-in slide-in-from-bottom-4 duration-500 space-y-8">
+    <div>
+      <h2 className="text-3xl font-bold text-white mb-2">System Settings</h2>
+      <p className="text-gray-400">Personalize your experience</p>
+    </div>
+
+    <div className="bg-white/5 rounded-xl border border-white/10 p-6">
+      <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <ImageIcon size={20} /> Wallpaper
+      </h3>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {WALLPAPERS.map((wp, idx) => (
+          <div 
+            key={idx}
+            onClick={() => onSetWallpaper(wp.url)}
+            className={`group relative aspect-video rounded-lg overflow-hidden cursor-pointer border-2 transition-all hover:scale-105
+              ${currentWallpaper === wp.url ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-transparent hover:border-white/30'}
+            `}
+          >
+            <img src={wp.url} alt={wp.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-white font-semibold">{wp.name}</span>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="space-y-1">
-        <label className="text-xs text-gray-400 uppercase font-bold tracking-wider">Message</label>
-        <textarea rows={4} placeholder="Your Message" className="w-full bg-slate-900/50 border border-slate-700 rounded p-3 text-white focus:outline-none focus:border-green-500 transition-colors" />
-      </div>
-      <button className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow-lg transition-all transform active:scale-95">
-        Send Message
-      </button>
-    </form>
-    
-    <div className="mt-8 text-center text-xs text-gray-500">
-      © 2025 Sourish Dey. All rights reserved.
     </div>
   </div>
 );
 
-interface SettingsViewProps {
-  currentWallpaper: string;
-  onSetWallpaper: (url: string) => void;
-}
+const TerminalView = () => {
+  const [history, setHistory] = useState<string[]>(["Welcome to Sourish OS Terminal v1.0.0", "Type 'help' for available commands."]);
+  const [input, setInput] = useState("");
+  const endRef = useRef<HTMLDivElement>(null);
 
-const SettingsView: React.FC<SettingsViewProps> = ({ currentWallpaper, onSetWallpaper }) => {
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [history]);
+
+  const handleCommand = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cmd = input.trim().toLowerCase();
+    const newHistory = [...history, `root@sourish-pc:~$ ${input}`];
+
+    switch (cmd) {
+      case 'help':
+        newHistory.push("Available commands: help, clear, about, projects, skills, contact, date, whoami");
+        break;
+      case 'clear':
+        setHistory([]);
+        setInput("");
+        return;
+      case 'about':
+        newHistory.push("Sourish Dey | Cloud & Data Science Engineer | KIIT University");
+        break;
+      case 'whoami':
+        newHistory.push("Visitor (You)");
+        break;
+      case 'projects':
+        newHistory.push("Listed in 'Projects' app. Top: Stock Analysis, Uber Analysis, FaceMeshX.");
+        break;
+      case 'date':
+        newHistory.push(new Date().toString());
+        break;
+      case 'contact':
+        newHistory.push("Email: sourish713321@gmail.com");
+        break;
+      case '':
+        break;
+      default:
+        newHistory.push(`Command not found: ${cmd}`);
+    }
+
+    setHistory(newHistory);
+    setInput("");
+  };
+
   return (
-    <div className="max-w-4xl mx-auto animate-in slide-in-from-bottom-4 duration-500 space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-white mb-2">System Settings</h2>
-        <p className="text-gray-400">Personalize your experience</p>
+    <div className="h-full bg-black/90 p-4 font-mono text-sm md:text-base overflow-hidden flex flex-col text-green-400">
+      <div className="flex-1 overflow-y-auto space-y-1 custom-scrollbar">
+        {history.map((line, i) => (
+          <div key={i} className="break-words">{line}</div>
+        ))}
+        <div ref={endRef} />
       </div>
+      <form onSubmit={handleCommand} className="flex gap-2 mt-2 pt-2 border-t border-green-500/30">
+        <span className="text-green-500 font-bold shrink-0">root@sourish-pc:~$</span>
+        <input 
+          type="text" 
+          value={input} 
+          onChange={(e) => setInput(e.target.value)} 
+          className="bg-transparent border-none outline-none flex-1 text-green-100"
+          autoFocus
+        />
+      </form>
+    </div>
+  );
+};
 
-      <div className="bg-white/5 rounded-xl border border-white/10 p-6">
-        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <ImageIcon size={20} /> Wallpaper
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {WALLPAPERS.map((wp, idx) => (
-            <div 
-              key={idx}
-              onClick={() => onSetWallpaper(wp.url)}
-              className={`group relative aspect-video rounded-lg overflow-hidden cursor-pointer border-2 transition-all hover:scale-105
-                ${currentWallpaper === wp.url ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-transparent hover:border-white/30'}
-              `}
-            >
-              <img src={wp.url} alt={wp.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white font-semibold">{wp.name}</span>
-              </div>
-              {currentWallpaper === wp.url && (
-                <div className="absolute top-2 right-2 bg-blue-500 text-white p-1 rounded-full">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
-              )}
-            </div>
-          ))}
+const CalculatorView = () => {
+  const [display, setDisplay] = useState("0");
+  const [expression, setExpression] = useState("");
+
+  const handlePress = (val: string) => {
+    if (val === 'C') {
+      setDisplay("0");
+      setExpression("");
+    } else if (val === '=') {
+      try {
+        // Safe-ish eval for a simple portfolio toy
+        // eslint-disable-next-line no-eval
+        const res = eval(expression.replace(/x/g, '*')); 
+        setDisplay(String(res).slice(0, 10));
+        setExpression(String(res));
+      } catch {
+        setDisplay("Error");
+      }
+    } else {
+      const newExpr = expression === "0" ? val : expression + val;
+      setExpression(newExpr);
+      setDisplay(newExpr);
+    }
+  };
+
+  const buttons = [
+    '7', '8', '9', '/',
+    '4', '5', '6', 'x',
+    '1', '2', '3', '-',
+    'C', '0', '=', '+'
+  ];
+
+  return (
+    <div className="h-full bg-gray-900 flex flex-col p-4 gap-4">
+      <div className="bg-gray-800 h-16 rounded-lg flex items-center justify-end px-4 text-3xl font-mono text-white overflow-hidden">
+        {display}
+      </div>
+      <div className="grid grid-cols-4 gap-2 flex-1">
+        {buttons.map(btn => (
+          <button 
+            key={btn}
+            onClick={() => handlePress(btn)}
+            className={`rounded-lg font-bold text-xl hover:opacity-80 transition-opacity
+              ${btn === 'C' ? 'bg-red-500 text-white' : ''}
+              ${btn === '=' ? 'bg-green-500 text-white' : ''}
+              ${['/','x','-','+'].includes(btn) ? 'bg-orange-500 text-white' : 'bg-gray-700 text-gray-200'}
+            `}
+          >
+            {btn}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const MusicPlayerView = () => {
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(30);
+
+  useEffect(() => {
+    let interval: any;
+    if (playing) {
+      interval = setInterval(() => {
+        setProgress(p => (p >= 100 ? 0 : p + 1));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [playing]);
+
+  return (
+    <div className="h-full flex flex-col bg-gradient-to-b from-indigo-900 to-black text-white p-6 items-center justify-center space-y-6">
+      <div className="w-48 h-48 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-lg shadow-2xl flex items-center justify-center animate-pulse">
+        <Music size={64} className="text-white drop-shadow-lg" />
+      </div>
+      <div className="text-center">
+        <h3 className="text-xl font-bold">Lo-Fi Coding Beats</h3>
+        <p className="text-indigo-300">Chill Vibes Corp.</p>
+      </div>
+      <div className="w-full space-y-2">
+        <div className="w-full bg-gray-700 h-1.5 rounded-full overflow-hidden">
+          <div className="bg-green-400 h-full transition-all duration-1000" style={{ width: `${progress}%` }}></div>
+        </div>
+        <div className="flex justify-between text-xs text-gray-400 font-mono">
+          <span>1:45</span>
+          <span>4:20</span>
         </div>
       </div>
-
-      <div className="bg-white/5 rounded-xl border border-white/10 p-6">
-         <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <Info size={20} /> System Info
-        </h3>
-        <div className="space-y-4 text-sm">
-          <div className="flex justify-between border-b border-white/5 pb-2">
-            <span className="text-gray-400">OS Version</span>
-            <span className="text-white">SourishOS v1.2.0 (Stable)</span>
-          </div>
-           <div className="flex justify-between border-b border-white/5 pb-2">
-            <span className="text-gray-400">Kernel</span>
-            <span className="text-white">React 18.2.0</span>
-          </div>
-           <div className="flex justify-between border-b border-white/5 pb-2">
-            <span className="text-gray-400">Resolution</span>
-            <span className="text-white">{window.innerWidth} x {window.innerHeight}</span>
-          </div>
-           <div className="flex justify-between">
-            <span className="text-gray-400">Memory</span>
-            <span className="text-white">Virtual Heap 4GB</span>
-          </div>
+      <div className="flex items-center gap-6">
+        <SkipBack size={24} className="cursor-pointer hover:text-green-400" />
+        <button 
+          onClick={() => setPlaying(!playing)}
+          className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center text-black hover:scale-105 transition-transform"
+        >
+          {playing ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+        </button>
+        <SkipForward size={24} className="cursor-pointer hover:text-green-400" />
+      </div>
+      <div className="flex items-center gap-2 text-gray-400">
+        <Volume2 size={16} />
+        <div className="w-20 h-1 bg-gray-600 rounded-full">
+           <div className="w-2/3 h-full bg-white rounded-full"></div>
         </div>
       </div>
     </div>
   );
 };
+
+const LockScreen: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
+  const [pass, setPass] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulate check - accept anything
+    if (pass.length > 0) {
+      onUnlock();
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 500);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-3xl flex flex-col items-center justify-center text-white animate-in fade-in duration-500">
+      <div className="mb-8 flex flex-col items-center gap-4">
+        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
+           <div className="w-full h-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-4xl font-bold">SD</div>
+        </div>
+        <h2 className="text-2xl font-bold tracking-tight">Sourish Dey</h2>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-64">
+        <input 
+          type="password" 
+          placeholder="Enter Password"
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+          autoFocus
+          className={`bg-white/10 border ${error ? 'border-red-500 animate-shake' : 'border-white/20'} rounded-lg px-4 py-2 text-center text-white placeholder-white/40 focus:outline-none focus:bg-white/20 transition-all`}
+        />
+        <button 
+          type="submit"
+          className="bg-white/10 hover:bg-white/20 text-sm font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+        >
+          Login <ChevronRight size={14} />
+        </button>
+      </form>
+      <div className="mt-12 text-center">
+        <p className="text-6xl font-thin tracking-tighter mb-2">
+          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+        </p>
+        <p className="text-lg text-white/60 font-medium">
+          {new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const NotificationSystem: React.FC<{ notifications: Notification[] }> = ({ notifications }) => (
+  <div className="fixed top-12 right-4 z-[9999] flex flex-col gap-2 pointer-events-none">
+    {notifications.map(notif => (
+      <div key={notif.id} className="bg-gray-900/90 backdrop-blur border border-white/10 p-4 rounded-lg shadow-2xl w-80 animate-in slide-in-from-right duration-300 pointer-events-auto flex gap-3 items-start">
+        <div className="p-2 bg-blue-500/20 rounded-full text-blue-400 shrink-0">
+          <Bell size={18} />
+        </div>
+        <div>
+          <h4 className="font-bold text-white text-sm">{notif.title}</h4>
+          <p className="text-gray-400 text-xs mt-1">{notif.message}</p>
+          <span className="text-[10px] text-gray-500 mt-2 block">{notif.timestamp.toLocaleTimeString()}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 // --- Context Menu Component ---
 
@@ -958,9 +1130,10 @@ interface ContextMenuProps {
   onRefresh: () => void;
   onChangeWallpaper: () => void;
   onOpenSettings: () => void;
+  onLock: () => void;
 }
 
-const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onRefresh, onChangeWallpaper, onOpenSettings }) => {
+const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onRefresh, onChangeWallpaper, onOpenSettings, onLock }) => {
   useEffect(() => {
     const handleClick = () => onClose();
     window.addEventListener('click', handleClick);
@@ -984,8 +1157,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onRefresh, onC
         <Settings size={14} /> Personalize...
       </button>
       <div className="h-px bg-white/10 my-1 mx-2"></div>
-      <button className="w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white flex items-center gap-2 transition-colors text-gray-400">
-        <LogOut size={14} /> Log Out
+      <button onClick={() => { onLock(); onClose(); }} className="w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white flex items-center gap-2 transition-colors text-gray-400">
+        <Lock size={14} /> Lock Screen
       </button>
     </div>
   );
@@ -995,9 +1168,11 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onClose, onRefresh, onC
 
 const App: React.FC = () => {
   const [booted, setBooted] = useState(false);
+  const [locked, setLocked] = useState(true);
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [zIndexCounter, setZIndexCounter] = useState(10);
   const [activeWindowId, setActiveWindowId] = useState<AppId | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   
   // Unique Features State
   const [wallpaper, setWallpaper] = useState(WALLPAPERS[0].url);
@@ -1009,9 +1184,23 @@ const App: React.FC = () => {
     // Simulate boot sequence
     const timer = setTimeout(() => {
       setBooted(true);
-    }, 2000);
+      // Wait for unlock to show welcome notification
+    }, 2500);
     return () => clearTimeout(timer);
   }, []);
+
+  const addNotification = (title: string, message: string) => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, title, message, timestamp: new Date() }]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 5000);
+  };
+
+  const handleUnlock = () => {
+    setLocked(false);
+    addNotification("Welcome Back!", "System is ready. Connected to Wifi.");
+  };
 
   const openApp = (id: AppId) => {
     setWindows(prev => {
@@ -1024,9 +1213,11 @@ const App: React.FC = () => {
         return prev;
       }
       
+      const appConfig = APPS.find(a => a.id === id);
+      
       // Calculate random position
-      const initialWidth = Math.min(window.innerWidth * 0.8, 1000);
-      const initialHeight = Math.min(window.innerHeight * 0.7, 700);
+      const initialWidth = appConfig?.defaultSize?.w || Math.min(window.innerWidth * 0.8, 1000);
+      const initialHeight = appConfig?.defaultSize?.h || Math.min(window.innerHeight * 0.7, 700);
       const initialX = Math.max(20, (window.innerWidth - initialWidth) / 2 + (Math.random() * 40 - 20));
       const initialY = Math.max(40, (window.innerHeight - initialHeight) / 2 + (Math.random() * 40 - 20));
 
@@ -1105,7 +1296,7 @@ const App: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    setRefreshKey(k => k + 1); // Triggers re-render of icons mostly
+    setRefreshKey(k => k + 1);
   };
 
   const renderContent = (id: AppId) => {
@@ -1121,18 +1312,23 @@ const App: React.FC = () => {
       case 'honors': return <HonorsView />;
       case 'contact': return <ContactView />;
       case 'settings': return <SettingsView currentWallpaper={wallpaper} onSetWallpaper={setWallpaper} />;
+      case 'terminal': return <TerminalView />;
+      case 'music': return <MusicPlayerView />;
+      case 'calculator': return <CalculatorView />;
       default: return null;
     }
   };
 
   if (!booted) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-white cursor-wait">
+      <div 
+        className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-white cursor-wait"
+        onClick={() => setBooted(true)} // Fail-safe click
+      >
         <div className="mb-8 relative">
            <Monitor size={64} className="text-blue-500 animate-pulse" />
            <div className="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
         </div>
-        {/* Simplified Animation for robustness */}
         <div className="w-64 h-2 bg-gray-800 rounded-full overflow-hidden mb-4 border border-gray-700">
            <div className="h-full bg-blue-500 transition-all duration-[2000ms] ease-out w-full" style={{ width: booted ? '100%' : '0%' }}></div>
         </div>
@@ -1151,9 +1347,14 @@ const App: React.FC = () => {
         if (showSystemMenu) setShowSystemMenu(false);
       }}
     >
-      
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
+
+      {/* Notifications */}
+      <NotificationSystem notifications={notifications} />
+
+      {/* Lock Screen Overlay */}
+      {locked && <LockScreen onUnlock={handleUnlock} />}
 
       {/* Top Bar (Status Bar) */}
       <div className="h-8 bg-black/40 backdrop-blur-md flex items-center justify-between px-4 text-white z-50 border-b border-white/5 relative shadow-sm">
@@ -1175,6 +1376,9 @@ const App: React.FC = () => {
                <button onClick={() => openApp('settings')} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white text-gray-200 transition-colors">
                  System Preferences...
                </button>
+               <button onClick={() => setLocked(true)} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white text-gray-200 transition-colors">
+                 Lock Screen
+               </button>
                <div className="h-px bg-white/10 my-1 mx-2"></div>
                <button onClick={() => window.location.reload()} className="w-full text-left px-4 py-2 hover:bg-blue-600 hover:text-white text-gray-200 transition-colors">
                  Restart...
@@ -1185,12 +1389,12 @@ const App: React.FC = () => {
              </div>
            )}
 
-           <span className="opacity-20">|</span>
-           <span className="cursor-pointer hover:text-gray-300">File</span>
-           <span className="cursor-pointer hover:text-gray-300">Edit</span>
-           <span className="cursor-pointer hover:text-gray-300">View</span>
-           <span className="cursor-pointer hover:text-gray-300">Window</span>
-           <span className="cursor-pointer hover:text-gray-300">Help</span>
+           <span className="opacity-20 hidden sm:inline">|</span>
+           <span className="cursor-pointer hover:text-gray-300 hidden sm:inline">File</span>
+           <span className="cursor-pointer hover:text-gray-300 hidden sm:inline">Edit</span>
+           <span className="cursor-pointer hover:text-gray-300 hidden sm:inline">View</span>
+           <span className="cursor-pointer hover:text-gray-300 hidden sm:inline">Window</span>
+           <span className="cursor-pointer hover:text-gray-300 hidden sm:inline">Help</span>
         </div>
         <div className="flex items-center space-x-5 text-xs font-medium">
           <div className="flex items-center gap-2 text-green-400">
@@ -1258,12 +1462,13 @@ const App: React.FC = () => {
           onRefresh={handleRefresh}
           onChangeWallpaper={handleNextWallpaper}
           onOpenSettings={() => openApp('settings')}
+          onLock={() => setLocked(true)}
         />
       )}
 
       {/* Dock (Nav Panel) */}
       <div className="absolute bottom-4 left-0 right-0 flex justify-center z-[100] pointer-events-none">
-        <div className="flex items-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl pointer-events-auto transition-all duration-300 hover:scale-105 hover:bg-white/15 hover:border-white/30">
+        <div className="flex items-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl pointer-events-auto transition-all duration-300 hover:scale-105 hover:bg-white/15 hover:border-white/30 max-w-full overflow-x-auto no-scrollbar">
           {APPS.map((app) => {
             const isOpen = windows.some(w => w.id === app.id);
             const isMinimized = windows.find(w => w.id === app.id)?.isMinimized;
@@ -1280,7 +1485,7 @@ const App: React.FC = () => {
                 {/* Icon */}
                 <button 
                   onClick={() => isOpen ? (isActive ? minimizeWindow(app.id) : focusWindow(app.id)) : openApp(app.id)}
-                  className={`p-3 rounded-xl transition-all duration-300 transform hover:-translate-y-3 hover:scale-110 
+                  className={`p-3 rounded-xl transition-all duration-300 transform hover:-translate-y-3 hover:scale-110 flex-shrink-0
                     ${isOpen && !isMinimized ? 'bg-white/20 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'hover:bg-white/10'}
                   `}
                 >
